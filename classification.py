@@ -9,6 +9,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.datasets import make_classification, make_circles
 from sklearn.linear_model import LogisticRegression
+import os
+
+# ✅ Add this at the very beginning!
+os.makedirs('classification_graphs', exist_ok=True)
+print("Created folder: classification_graphs\n")
 
 print("=" * 80)
 print("PART 1: CLASSIFICATION BASICS")
@@ -117,6 +122,7 @@ ax2.legend(fontsize=10)
 ax2.grid(True, alpha=0.3)
 
 plt.tight_layout()
+plt.savefig('Probability_distribution.png', dpi=300,  bbox_inches='tight' )
 plt.show()
 
 
@@ -181,6 +187,7 @@ for idx, (model, X_data, poly_features, title) in enumerate([
     ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
+plt.savefig('NonLinearDicision.png', dpi=300,  bbox_inches='tight' )
 plt.show()
 
 # Scores
@@ -246,8 +253,5 @@ ax.text(1.5, 1.5, 'Class 0\nRegion', fontsize=11, ha='center', fontweight='bold'
 ax.text(3.5, 3.5, 'Class 1\nRegion', fontsize=11, ha='center', fontweight='bold', color='blue')
 
 plt.tight_layout()
+plt.savefig('classification.png', dpi=300,  bbox_inches='tight' )
 plt.show()
-
-print("\n✓ The black line is the decision boundary!")
-print("✓ It separates the two classes")
-print("✓ Points on one side predict class 0, other side predict class 1")k
