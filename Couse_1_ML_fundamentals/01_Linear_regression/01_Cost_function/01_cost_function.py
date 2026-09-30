@@ -110,7 +110,9 @@ plt.title('Cost Function: How Cost Changes with w', fontsize=14, fontweight='bol
 plt.grid(True, alpha=0.3)
 plt.legend(fontsize=11)
 plt.tight_layout()
+plt.savefig('With_different_values.png', dpi=300,  bbox_inches='tight' )
 plt.show()
+
 
 
 # ============ 2D COST FUNCTION (w and b together) ============
@@ -153,12 +155,16 @@ ax2.set_ylabel('b (bias)', fontsize=10)
 ax2.set_title('Contour Plot of Cost Function', fontsize=12, fontweight='bold')
 
 plt.tight_layout()
+plt.savefig('plot.png', dpi=300,  bbox_inches='tight' )
 plt.show()
+
 
 print("✓ The valley/crater shape shows where the minimum cost is!")
 print("✓ Gradient descent will roll down this surface to find the minimum")
-plt.tight_layout()
+
 plt.savefig('C:\ML-Learning-Journey\Cost_Functions.png', dpi=150, bbox_inches='tight')
 print("\n✓ Visualization saved as 'Cost_Functions.png', dpi=150, bbox_inches='tight'")
 print("\n✓ Visualization saved as 'Cost_Functions.png'")
+plt.tight_layout()
+plt.savefig('Contour_Plot.png', dpi=300,  bbox_inches='tight' )
 plt.show()

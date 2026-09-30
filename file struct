@@ -1,0 +1,72 @@
+Course_2_Neural_Networks/
+│
+├── 01_neural_networks_fundamentals/
+│   ├── 01_activation_functions.py          # ReLU, Sigmoid, Tanh
+│   ├── 02_single_neuron.py                 # One neuron from scratch
+│   ├── 03_two_layer_network.py             # 2-layer network
+│   ├── 04_forward_propagation.py           # Forward pass explained
+│   ├── 05_backward_propagation.py          # Backprop from scratch
+│   ├── 06_complete_training_loop.py        # Full training pipeline
+│   └── README.md
+│
+├── 02_neural_network_layers/
+│   ├── 01_dense_layer.py                   # Fully connected layer
+│   ├── 02_conv2d_layer.py                  # Convolutional layer
+│   ├── 03_flatten_layer.py                 # Flatten layer
+│   ├── 04_dropout_layer.py                 # Regularization
+│   ├── 05_batchnorm_layer.py               # Normalization
+│   ├── 06_layer_combinations.py            # How layers work together
+│   └── README.md
+│
+├── 03_demand_prediction/
+│   ├── 01_generate_dataset.py              # Create synthetic data
+│   ├── 02_preprocess_data.py               # Scale & prepare data
+│   ├── 03_build_network.py                 # Network architecture
+│   ├── 04_train_model.py                   # Training loop
+│   ├── 05_evaluate_model.py                # Performance metrics
+│   ├── 06_make_predictions.py              # Predict new demand
+│   ├── 07_visualize_results.py             # Plots & graphs
+│   ├── datasets/
+│   │   └── coffee_demand.csv               # Generated data
+│   ├── models/
+│   │   └── demand_model_weights.npy        # Saved weights
+│   ├── graphs/
+│   │   └── (saved plots)
+│   └── README.md
+│
+├── 04_face_recognition/
+│   ├── 01_load_face_images.py              # Load image data
+│   ├── 02_preprocess_images.py             # Resize, normalize
+│   ├── 03_build_cnn.py                     # CNN architecture
+│   ├── 04_train_classifier.py              # Training pipeline
+│   ├── 05_face_embeddings.py               # Convert to vectors
+│   ├── 06_recognize_faces.py               # Predict faces
+│   ├── 07_evaluate_accuracy.py             # Metrics
+│   ├── datasets/
+│   │   └── sample_faces/                   # Sample images
+│   ├── models/
+│   │   └── face_model.npy
+│   └── README.md
+│
+├── utils/
+│   ├── activations.py                      # All activation functions
+│   ├── layers.py                           # All layer classes
+│   ├── losses.py                           # Loss functions
+│   ├── metrics.py                          # Accuracy, F1, etc
+│   └── visualizations.py                   # Plotting functions
+│
+├── datasets/
+│   ├── coffee_demand.csv
+│   └── sample_faces/
+│
+├── models/
+│   ├── demand_model.npy
+│   └── face_model.npy
+│
+├── graphs/
+│   ├── (all generated plots)
+│   └── README.md
+│
+├── requirements.txt
+├── .gitignore
+└── README.md (Main Course 2 README)
