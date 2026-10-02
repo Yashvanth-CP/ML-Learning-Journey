@@ -21,16 +21,16 @@ class RegressionNetwork:
         self.learning_rate = learning_rate
         self.dropout_rate = dropout_rate
         
-        self.W1 = np.random.randn(input_size, hidden_sizes[0]) * 0.01
+        self.W1 = np.random.randn(input_size, hidden_sizes[0]) * np.sqrt(2 / input_size)
         self.b1 = np.zeros((1, hidden_sizes[0]))
         
-        self.W2 = np.random.randn(hidden_sizes[0], hidden_sizes[1]) * 0.01
+        self.W2 = np.random.randn(hidden_sizes[0], hidden_sizes[1]) * np.sqrt(2 / hidden_sizes[0])
         self.b2 = np.zeros((1, hidden_sizes[1]))
         
-        self.W3 = np.random.randn(hidden_sizes[1], hidden_sizes[2]) * 0.01
+        self.W3 = np.random.randn(hidden_sizes[1], hidden_sizes[2]) * np.sqrt(2 / hidden_sizes[1])
         self.b3 = np.zeros((1, hidden_sizes[2]))
         
-        self.W4 = np.random.randn(hidden_sizes[2], 1) * 0.01
+        self.W4 = np.random.randn(hidden_sizes[2], 1) * np.sqrt(2 / hidden_sizes[2])
         self.b4 = np.zeros((1, 1))
     
     def forward(self, X, training=True):
@@ -129,7 +129,7 @@ print("-"*70)
 model = RegressionNetwork(
     input_size=6,
     hidden_sizes=[32, 16, 8],
-    learning_rate=0.001,  # Smaller learning rate
+    learning_rate=0.01,  # Smaller learning rate
     dropout_rate=0.3
 )
 
