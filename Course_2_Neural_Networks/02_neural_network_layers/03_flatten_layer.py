@@ -47,7 +47,7 @@ print(f"\nAfter Flatten: {flattened.shape}")
 print(f"  (32, 800) ← 32×5×5 = 800 features")
 
 
-print("\n2. CNN → DENSE PIPELINE")
+print("\n CNN → DENSE PIPELINE")
 print("-"*70)
 
 """
