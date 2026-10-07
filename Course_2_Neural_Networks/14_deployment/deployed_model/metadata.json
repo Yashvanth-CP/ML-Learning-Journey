@@ -1,0 +1,46 @@
+{
+  "version": "v1",
+  "created": "2026-10-05T23:19:00",
+  "n_layers": 3,
+  "layer_sizes": [
+    7,
+    32,
+    16,
+    3
+  ],
+  "features": [
+    "N",
+    "P",
+    "K",
+    "temperature",
+    "humidity",
+    "ph",
+    "rainfall"
+  ],
+  "classes": [
+    "rice",
+    "wheat",
+    "maize"
+  ],
+  "feature_min": {
+    "N": 24.92825547252587,
+    "P": 23.083926379593898,
+    "K": 5.361102258230709,
+    "temperature": 8.496062854742977,
+    "humidity": 41.48104868914817,
+    "ph": 4.177049248449221,
+    "rainfall": 3.4568712370814296
+  },
+  "feature_max": {
+    "N": 112.31308979677749,
+    "P": 75.67887005865924,
+    "K": 65.1602740427073,
+    "temperature": 31.39511919244089,
+    "humidity": 96.3501072125758,
+    "ph": 8.242996941319785,
+    "rainfall": 324.15296493806227
+  },
+  "n_train": 840,
+  "test_accuracy": 0.9917,
+  "note": "SYNTHETIC demo data"
+}
