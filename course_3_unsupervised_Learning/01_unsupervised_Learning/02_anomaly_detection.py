@@ -26,7 +26,6 @@ def gauss_pdf(x, mu, var):
     return np.exp(-(x - mu)** 2/ (2 * var)) / np.sqrt(2*np.pi * var)
 
 print("Numeric Example : one feature, mu = 10, std = 2(var = 4)")
-
 for x in [10, 12, 14, 16] : 
     print(f"x = {x:>2} ({abs(x-10)/2:.0f} std from the mean) : p(x) = {gauss_pdf(x,10,4):.5f}")
 
