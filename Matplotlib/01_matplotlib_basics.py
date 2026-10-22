@@ -13,7 +13,7 @@ dev_y = [1300,4300,500,5600,6700,7800,2300]
 plt.plot(
     ages_x,
     dev_y, 
-    color="#585151", 
+    color="#22210B", 
     linestyle='-',
     label="All devs")
 
