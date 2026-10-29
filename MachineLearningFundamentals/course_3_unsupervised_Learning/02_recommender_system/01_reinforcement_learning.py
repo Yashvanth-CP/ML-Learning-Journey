@@ -106,9 +106,8 @@ def q_learning(n_episodes=5000, alpha=0.05, gamma=0.5,
  
         rewards_per_ep.append(ep_reward)
         eps = max(0.01, eps * decay) 
-
-
- return Q_learn, rewards_per_ep
+        
+        return Q_learn, rewards_per_ep
  
 Q_learned, reward_history = q_learning(n_episodes=5000)
  
@@ -165,3 +164,14 @@ def evaluate_policy(Q_table, p_miss=0.0, n_eval=500):
                 done = True
             s = s_next
     return total / n_eval
+
+for eps_fixed in [0.0, 0.1, 0.5, 1.0]:
+    Q_eps, _ = q_learning(n_episodes=3000, epsilon=eps_fixed, decay=1.0)
+    ret = evaluate_policy(Q_eps)
+    print(f"  ε = {eps_fixed:.1f} (fixed) → avg return from state 3: {ret:.1f}")
+ 
+print()
+Q_decay, _ = q_learning(n_episodes=3000, epsilon=0.5, decay=0.999)
+ret_decay = evaluate_policy(Q_decay)
+print(f"  ε = 0.5 → 0.01 (decay) → avg return: {ret_decay:.1f}")
+print("  (decay finds the best reward and exploits it)\n")
