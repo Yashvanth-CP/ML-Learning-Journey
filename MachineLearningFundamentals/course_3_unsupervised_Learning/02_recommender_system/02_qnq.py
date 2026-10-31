@@ -176,3 +176,190 @@ class ReplayBuffer:
         self.R     = np.zeros(capacity)
         self.S2    = np.zeros((capacity, state_dim))
         self.Done  = np.zeros(capacity, dtype=bool)
+        self.pos  = (self.pos + 1) % self.cap   # wrap around
+        self.size = min(self.size + 1, self.cap)
+ 
+    def sample(self, batch_size):
+        """Return a random mini-batch of transitions."""
+        idx = np.random.choice(self.size, size=batch_size, replace=False)
+        return (self.S[idx], self.A[idx], self.R[idx],
+                self.S2[idx], self.Done[idx])
+ 
+# Show how the buffer works
+buf = ReplayBuffer(capacity=5, state_dim=2)
+for i in range(7):               # add 7 transitions to a buffer of size 5
+    s  = np.array([i, i])
+    s2 = np.array([i+1, i+1])
+    buf.store(s, 0, float(i), s2, False)
+ 
+print(f"Buffer capacity: 5, added 7 transitions → stored: {buf.size}")
+print(f"Oldest state still in buffer: {buf.S[buf.pos]}  (overwritten)")
+ 
+print("\n" + "=" * 60)
+print("LEVEL 3b: Target network and soft update")
+print("=" * 60)
+print("""
+PROBLEM without a target network:
+  target = r + γ * max_a' Q(s', a'; θ)    ← θ changes every step
+  The target you're chasing moves every step → like trying to hit a
+  moving bullseye → training oscillates and may diverge.
+ 
+SOLUTION:
+  Keep a SEPARATE target network Q(s,a; θ⁻) whose parameters θ⁻
+  are updated SLOWLY.
+ 
+  Hard update (every C steps):  θ⁻ ← θ
+  Soft update (every step):     θ⁻ ← τ*θ + (1-τ)*θ⁻    (τ = 0.005)
+ 
+  Soft update makes the target drift toward the main network gradually
+  → more stable learning than waiting C steps then jumping.
+""")
+ 
+# Show soft update
+main_net   = QNetwork(4, 8, 2, seed=1)
+target_net = QNetwork(4, 8, 2, seed=2)
+tau = 0.005
+ 
+# Before update
+diff_before = abs(main_net.W1 - target_net.W1).mean()
+ 
+# Soft update
+for (mp, tp) in zip(main_net.get_params(), target_net.get_params()):
+    tp[:] = tau * mp + (1 - tau) * tp   # in-place update
+ 
+diff_after = abs(main_net.W1 - target_net.W1).mean()
+print(f"Mean |W1_main - W1_target| before soft update: {diff_before:.4f}")
+print(f"Mean |W1_main - W1_target| after  soft update: {diff_after:.4f}")
+print(f"Target moved slightly toward main (τ={tau})\n")
+ 
+ 
+# =============================================================================
+# LEVEL 4 — FULL DQN TRAINING LOOP
+# =============================================================================
+ 
+print("=" * 60)
+print("LEVEL 4: DQN training on Mars Rover (continuous states)")
+print("=" * 60)
+ 
+# Use the same 6-state rover but represent state as a one-hot vector
+# (so the net sees a continuous input even though the env is discrete)
+ 
+n_states  = 6
+n_actions = 2
+rewards   = np.array([100, 0, 0, 0, 0, 40], dtype=float)
+gamma     = 0.5
+tau_soft  = 0.005
+lr        = 5e-4
+batch_sz  = 64
+ 
+def state_vec(s):
+    """Convert state index to one-hot vector."""
+    v = np.zeros(n_states)
+    v[s] = 1.0
+    return v
+ 
+def next_state(s, a):
+    if s == 0: return 0
+    if s == 5: return 5
+    return s - 1 if a == 0 else s + 1
+ 
+# Adam optimiser (simple implementation)
+class Adam:
+    def __init__(self, lr=1e-3, beta1=0.9, beta2=0.999, eps=1e-8):
+        self.lr = lr; self.b1 = beta1; self.b2 = beta2; self.eps = eps
+        self.m = {}; self.v = {}; self.t = 0
+ 
+    def step(self, params, grads):
+        self.t += 1
+        for i, (p, g) in enumerate(zip(params, grads)):
+            if i not in self.m:
+                self.m[i] = np.zeros_like(p)
+                self.v[i] = np.zeros_like(p)
+            self.m[i] = self.b1*self.m[i] + (1-self.b1)*g
+            self.v[i] = self.b2*self.v[i] + (1-self.b2)*g**2
+            m_hat = self.m[i] / (1 - self.b1**self.t)
+            v_hat = self.v[i] / (1 - self.b2**self.t)
+            p -= self.lr * m_hat / (np.sqrt(v_hat) + self.eps)
+ 
+main_q   = QNetwork(n_states, 32, n_actions, seed=0)
+target_q = QNetwork(n_states, 32, n_actions, seed=0)
+target_q.copy_params_from(main_q)
+ 
+buffer   = ReplayBuffer(capacity=10000, state_dim=n_states)
+optim    = Adam(lr=lr)
+eps_val  = 1.0
+ 
+# Collect initial experience
+for _ in range(200):
+    s = np.random.randint(1, 5)
+    a = np.random.randint(2)
+    sn = next_state(s, a)
+    r  = rewards[s]
+    done = sn in [0, 5]
+    if done:
+        r += rewards[sn]
+    buffer.store(state_vec(s), a, r, state_vec(sn), done)
+ 
+# Training
+losses = []
+for step in range(8000):
+    # Sample mini-batch
+    S, A, R, S2, Done = buffer.sample(min(batch_sz, buffer.size))
+ 
+    # Compute targets using TARGET network
+    Q_next = target_q.forward(S2)              # (batch, n_actions)
+    max_Q_next = Q_next.max(axis=1)            # (batch,)
+    targets_full = R + gamma * max_Q_next * (~Done)  # (batch,)
+ 
+    # Forward pass main network
+    Q_pred = main_q.forward(S)                 # (batch, n_actions)
+ 
+    # Only update Q for the chosen action
+    Q_target_mat = Q_pred.copy()
+    Q_target_mat[np.arange(len(A)), A] = targets_full
+ 
+    # Loss and backward
+    loss = 0.5 * ((Q_pred - Q_target_mat)**2).mean()
+    dQ   = (Q_pred - Q_target_mat) / len(A)
+    grads = main_q.backward(dQ)
+    optim.step(main_q.get_params(), grads)
+    losses.append(loss)
+ 
+    # Soft update target network
+    for mp, tp in zip(main_q.get_params(), target_q.get_params()):
+        tp[:] = tau_soft * mp + (1 - tau_soft) * tp
+ 
+    # Collect new experience with ε-greedy
+    s  = np.random.randint(1, 5)
+    sv = state_vec(s)
+    a  = np.random.randint(2) if np.random.rand() < eps_val else main_q.forward(sv).argmax()
+    sn = next_state(s, a)
+    r  = rewards[s]
+    done = sn in [0, 5]
+    if done: r += rewards[sn]
+    buffer.store(sv, a, r, state_vec(sn), done)
+    eps_val = max(0.05, eps_val * 0.9997)
+ 
+# Evaluate learned Q table
+print("DQN learned Q values vs true Q*:")
+print("State  Q(s,left)  Q(s,right)  Best action  True best")
+true_best_names = ['left','left','left','right','right','right']
+for s in range(n_states):
+    sv    = state_vec(s)
+    q_dqn = main_q.forward(sv)
+    best  = "left" if q_dqn[0] > q_dqn[1] else "right"
+    print(f"  {s+1}    {q_dqn[0]:8.2f}   {q_dqn[1]:8.2f}     {best:<6}       {true_best_names[s]}")
+ 
+import matplotlib.pyplot as plt
+plt.figure(figsize=(7, 3))
+window = 100
+smoothed = np.convolve(losses, np.ones(window)/window, mode='valid')
+plt.plot(smoothed)
+plt.xlabel("Training step")
+plt.ylabel("TD Loss (smoothed)")
+plt.title("DQN training loss")
+plt.tight_layout()
+plt.savefig("learn_c3_05a_dqn_loss.png")
+plt.close()
+print("Saved: learn_c3_05a_dqn_loss.png\n")
+ 
