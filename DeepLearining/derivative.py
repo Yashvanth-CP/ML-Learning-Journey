@@ -50,3 +50,57 @@ def numerical_derivative(g, z, eps=1e-5):
     return (g(z + eps) - g(z - eps)) / (2 * eps)
 
 print(np.allclose(sigmoid_derivative(z), numerical_derivative(sigmoid, z)))  # True
+
+
+"""Non-linear activation functions (NumPy) with a plot of each one."""
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+def sigmoid(z):                          # output in (0, 1)
+    return 1 / (1 + np.exp(-z))
+
+def tanh(z):                             # output in (-1, 1), zero-centered
+    return np.tanh(z)
+
+def relu(z):                             # max(0, z)
+    return np.maximum(0, z)
+
+def leaky_relu(z, alpha=0.01):           # small slope for negative z
+    return np.where(z > 0, z, alpha * z)
+
+def elu(z, alpha=1.0):                   # smooth curve for negative z
+    return np.where(z > 0, z, alpha * (np.exp(z) - 1))
+
+def softplus(z):                         # smooth version of ReLU
+    return np.log(1 + np.exp(z))
+
+def gelu(z):                             # used in Transformers (tanh approx.)
+    return 0.5 * z * (1 + np.tanh(np.sqrt(2 / np.pi) * (z + 0.044715 * z ** 3)))
+
+def swish(z):                            # z * sigmoid(z)
+    return z * sigmoid(z)
+
+def softmax(z):                          # turns a vector into probabilities
+    e = np.exp(z - np.max(z))            # subtract max for numerical stability
+    return e / e.sum()
+
+
+# ---------- Test ----------
+z = np.array([-2.0, -0.5, 0.0, 0.5, 2.0])
+for f in [sigmoid, tanh, relu, leaky_relu, elu, softplus, gelu, swish]:
+    print(f"{f.__name__:11s}:", np.round(f(z), 3))
+print("softmax    :", np.round(softmax(z), 3), "| sum =", softmax(z).sum())
+
+# ---------- Plot ----------
+x = np.linspace(-5, 5, 400)
+funcs = [sigmoid, tanh, relu, leaky_relu, elu, softplus, gelu, swish]
+fig, axes = plt.subplots(2, 4, figsize=(14, 6))
+for ax, f in zip(axes.ravel(), funcs):
+    ax.plot(x, f(x))
+    ax.axhline(0, color="gray", lw=0.5)
+    ax.axvline(0, color="gray", lw=0.5)
+    ax.set_title(f.__name__)
+    ax.set_ylim(-2, 5)
+plt.tight_layout()
+plt.savefig("/home/claude/activations.png")
