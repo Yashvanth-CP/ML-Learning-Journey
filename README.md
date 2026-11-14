@@ -106,6 +106,37 @@ Short term: Master ML fundamentals + DSA
 Mid term: Build real AI/ML projects
 Long term: Deep Learning + Generative AI expert
 
+# ML Learning Journey
+
+My practice repo for learning Machine Learning from the basics, using Python, NumPy, pandas, and Matplotlib.
+
+## What is inside
+| File / Folder | Topic |
+|---|---|
+| `01_cost_function.py` | Cost function for linear regression |
+| `LINEAR_REGRESSION/` | Linear regression and gradient descent |
+| `sigmoid_logistic_function.py` | Sigmoid function |
+| `Logistic_Regression/` | Logistic regression |
+| `classification.py` | Classification on Telco Customer Churn data |
+| `overfitting_regularization.py` | Overfitting, L1/L2 regularization |
+| `reenforcement.py` | Basic reinforcement learning |
+| `*_graphs/` | Output plots |
+
+## Dataset
+Telco Customer Churn (`WA_Fn-UseC_-Telco-Customer-Churn.csv`).
+
+## How to run
+pip install numpy pandas matplotlib scikit-learn
+python classification.py
+
+## What I learned
+- How a model learns using cost and gradient descent
+- Why we use the sigmoid and log loss for classification
+- How regularization reduces overfitting
+
+## Author
+Yashvanth CP
+
 ⚠️ Things I Learned the Hard Way
 Learning rate matters! Too small = slow, too large = diverges
 Polynomial features can overfit - high degree looks perfect on training data but fails on new data
