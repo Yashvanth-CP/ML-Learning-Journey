@@ -160,3 +160,102 @@ for name, init_fn in [("zeros",  lambda d: init_zeros(d)),
     print(f"  {name:15s} → Layer 3 activation std: {A.std():.4f}  mean: {A.mean():.4f}")
 
 print("\nHe init keeps std ~1 across layers — others explode or vanish\n")
+
+
+print("=" * 55)
+print("7. L2 Regularisation")
+print("=" * 55)
+
+def l2_cost_term(params, lam, m):
+    """Extra cost from L2 regularisation."""
+    L   = len(params) // 2
+    reg = sum(np.sum(params[f'W{l}']**2) for l in range(1, L+1))
+    return (lam / (2*m)) * reg
+
+def l2_grad_term(W, lam, m):
+    """Extra gradient from L2 regularisation."""
+    return (lam / m) * W
+
+lam = 0.1
+m   = 100
+p   = init_he([3, 5, 1])
+print(f"L2 cost term (λ={lam}): {l2_cost_term(p, lam, m):.4f}")
+print(f"L2 grad extra for W1 : adds (λ/m)*W1 = {lam/m:.4f} * W1 to each gradient\n")
+
+
+def dropout_forward(A, keep_prob):
+    """
+    Apply dropout to activation A.
+    Returns A_drop, mask (mask saved for backprop).
+    """
+    mask  = (np.random.rand(*A.shape) < keep_prob)   # True = keep
+    A_drop = (A * mask) / keep_prob                   # scale up survivors
+    return A_drop, mask
+
+def dropout_backward(dA, mask, keep_prob):
+    """Backprop through dropout layer."""
+    return (dA * mask) / keep_prob
+
+A_example  = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]])
+keep_prob  = 0.8
+A_dropped, mask = dropout_forward(A_example, keep_prob)
+
+print(f"Original A    : {A_example}")
+print(f"Dropout mask  : {mask.astype(int)}  (1=keep, 0=drop)")
+print(f"After dropout : {A_dropped.round(3)}")
+print(f"Scaling by 1/{keep_prob} = {1/keep_prob:.2f} keeps expected value same\n")
+print("IMPORTANT: dropout only during TRAINING, NOT during inference!\n")
+
+
+# =============================================================================
+# 9. GRADIENT CHECKING
+# =============================================================================
+# Used to verify your backprop is correct.
+# Numerical gradient (finite differences):
+#   dJ/dθ ≈ (J(θ+ε) - J(θ-ε)) / (2ε)
+#
+# Compare with analytical gradient from backprop.
+# If difference < 1e-5 → backprop is correct.
+
+print("=" * 55)
+print("9. Gradient Checking")
+print("=" * 55)
+
+def dict_to_vec(params):
+    """Flatten all parameters into one long vector."""
+    vec = []
+    for key in sorted(params.keys()):
+        vec.append(params[key].flatten())
+    return np.concatenate(vec)
+
+# Simple 1-layer network to demonstrate grad check
+def simple_cost(W, X, Y):
+    """Simple linear + sigmoid cost for 1 output."""
+    Z  = W @ X
+    AL = 1 / (1 + np.exp(-Z))
+    AL = np.clip(AL, 1e-15, 1-1e-15)
+    return -np.mean(Y * np.log(AL) + (1-Y) * np.log(1-AL))
+
+W_gc = np.array([[0.5, -0.3, 0.1]])
+X_gc = np.random.randn(3, 5)
+Y_gc = np.array([[1, 0, 1, 0, 1]], dtype=float)
+
+# Analytical gradient
+AL = 1 / (1 + np.exp(-(W_gc @ X_gc)))
+dW_analytical = ((AL - Y_gc) @ X_gc.T) / 5
+
+# Numerical gradient
+eps = 1e-5
+dW_numerical = np.zeros_like(W_gc)
+for i in range(W_gc.shape[1]):
+    W_p = W_gc.copy(); W_p[0,i] += eps
+    W_m = W_gc.copy(); W_m[0,i] -= eps
+    dW_numerical[0,i] = (simple_cost(W_p, X_gc, Y_gc) -
+                          simple_cost(W_m, X_gc, Y_gc)) / (2*eps)
+
+diff = np.linalg.norm(dW_analytical - dW_numerical) / (
+       np.linalg.norm(dW_analytical) + np.linalg.norm(dW_numerical))
+
+print(f"Analytical gradient : {dW_analytical.round(6)}")
+print(f"Numerical  gradient : {dW_numerical.round(6)}")
+print(f"Relative difference : {diff:.2e}  (< 1e-5 = PASS ✓)\n")
