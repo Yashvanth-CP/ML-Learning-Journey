@@ -519,37 +519,6 @@ print(f"Sklearn accuracy : {sk_acc*100:.2f}%")
 print("(Should be close — small differences due to optimiser)\n")
 
 
-# =============================================================================
-# COMPLETE SUMMARY
-# =============================================================================
-print("=" * 60)
-print("COMPLETE SUMMARY")
-print("=" * 60)
-print("""
-LOGISTIC REGRESSION PIPELINE:
 
-1. FORWARD PASS:
-   z    = X @ w + b          (linear combination)
-   f    = sigmoid(z)          (probability: 0 to 1)
-   ŷ    = (f >= 0.5)          (class prediction)
-
-2. COST (Binary Cross-Entropy):
-   J = -(1/m) Σ [y*log(f) + (1-y)*log(1-f)]
-   + (λ/2m) Σ w²             (regularisation term)
-
-3. GRADIENTS:
-   dw = (1/m) Xᵀ(f-y) + (λ/m)*w
-   db = (1/m) Σ(f-y)
-
-4. UPDATE:
-   w ← w - α*dw
-   b ← b - α*db
-
-KEY DIFFERENCES from Linear Regression:
-   Linear  : f(x) = wx + b          (output: any real number)
-   Logistic: f(x) = sigmoid(wx + b) (output: 0 to 1)
-   Cost    : MSE    → Cross-Entropy
-   Gradient: same formula, different f
-""")
 
 
